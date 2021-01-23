@@ -2,9 +2,11 @@ timestamp=$(date -u +"%Y-%m-%d_%H:%M:%S")
 
 echo "output-$timestamp.mp4" | xclip
 
+defaultSink=$(pactl list sources | grep -E 'Name.*monitor' | cut -d ' '  -f 2)
+
 ffmpeg \
        -f pulse -i alsa_output.pci-0000_00_1f.3.analog-stereo.monitor \
-			 -f pulse -i bluez_sink.24_5A_B5_BF_63_70.a2dp_sink.monitor \
+			 -f pulse -i "$defaultSink" \
 			 -filter_complex amix=inputs=2 \
 			 -f x11grab \
        -framerate 30  \
@@ -13,7 +15,6 @@ ffmpeg \
        -vcodec libx264 -preset veryfast -crf 18 \
 			 -pix_fmt yuv420p \
 			 "output-$timestamp.mp4"
-
 
 # ffmpeg -f x11grab \
 #        -video_size 1920x1080 \
